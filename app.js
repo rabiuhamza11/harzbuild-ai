@@ -2,6 +2,7 @@
 
 const API_URL = '/api/backend/harzBuilderApi';
 const HARZPAY_API = '/api/backend/harzPayPayment';
+const STRIPE_API = "/api/backend/stripeCardPayment";
 
 let selectedTemplate = null;
 let selectedLang = 'English';
@@ -217,6 +218,7 @@ async function createSite() {
 
 let currentSiteId = null;
 
+
 async function processHarzPay() {
   if (!selectedPaymentMethod) { showToast('Select a payment method', 'error'); return; }
   const btn = document.getElementById('confirmPaymentBtn');
@@ -225,6 +227,30 @@ async function processHarzPay() {
   const userEmail = document.getElementById('bizEmail').value.trim() || getUserEmail();
   const bizName = document.getElementById('bizName').value.trim();
 
+  // CARD PAYMENT → Stripe Checkout
+  if (selectedPaymentMethod === 'card') {
+    try {
+      const response = await fetch(STRIPE_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create_checkout', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], customer_email: userEmail, customer_name: bizName, plan_name: selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1) }) });
+      const data = await response.json();
+      if (data.checkout_url) {
+        // Save pending payment info before redirect
+        localStorage.setItem('pending_stripe_payment', JSON.stringify({ site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], subdomain: document.getElementById('subdomain').value }));
+        window.location.href = data.checkout_url;
+        return;
+      } else {
+        showToast(data.error || 'Card payment failed. Try another method.', 'error');
+        btn.disabled = false; btn.textContent = 'Confirm Payment Method';
+        return;
+      }
+    } catch (e) {
+      showToast('Card payment unavailable. Try bank transfer.', 'error');
+      btn.disabled = false; btn.textContent = 'Confirm Payment Method';
+      return;
+    }
+  }
+
+  // OTHER METHODS → HarzPay manual flow
   try {
     const response = await fetch(HARZPAY_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'initiate', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], customer_email: userEmail, customer_name: bizName, payment_method: selectedPaymentMethod }) });
@@ -250,21 +276,32 @@ async function processHarzPay() {
 async function verifyHarzPay() {
   const btn = document.getElementById('verifyPaymentBtn');
   btn.textContent = 'Verifying...'; btn.disabled = true;
-
   const userEmail = document.getElementById('bizEmail').value.trim() || getUserEmail();
-
-  // Create subscription in database
   await apiCall({ action: 'create_subscription', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], payment_method: selectedPaymentMethod, payment_reference: harzPayRef, user_email: userEmail });
-
-  // Publish the site
   if (currentSiteId) { await apiCall({ action: 'publish_site', site_id: currentSiteId }); }
-
-  // Also save to localStorage as backup
   let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
   if (sites.length > 0) { sites[sites.length - 1].status = 'published'; sites[sites.length - 1].plan = selectedPlan; localStorage.setItem('harz_sites', JSON.stringify(sites)); }
-
   showSuccess({ published_url: `https://${document.getElementById('subdomain').value}.harzbuilder.site` });
   showToast('Payment confirmed via HarzPay! Site published! 🎉', 'success');
+}
+
+// Handle Stripe payment success redirect
+function checkStripeCallback() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    const pending = JSON.parse(localStorage.getItem('pending_stripe_payment') || '{}');
+    if (pending.site_id) {
+      // Create subscription and publish site
+      apiCall({ action: 'create_subscription', site_id: pending.site_id, plan: pending.plan, amount: pending.amount, payment_method: 'card', payment_reference: 'stripe_' + Date.now(), user_email: getUserEmail() });
+      apiCall({ action: 'publish_site', site_id: pending.site_id });
+      let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
+      if (sites.length > 0) { sites[sites.length - 1].status = 'published'; sites[sites.length - 1].plan = pending.plan; localStorage.setItem('harz_sites', JSON.stringify(sites)); }
+      localStorage.removeItem('pending_stripe_payment');
+      showToast('Card payment successful! Site published! 🎉', 'success');
+      setTimeout(() => showDashboard(), 1500);
+    }
+    window.history.replaceState({}, '', window.location.pathname);
+  }
 }
 
 function showSuccess(site) {
@@ -273,6 +310,7 @@ function showSuccess(site) {
   const urlEl = document.getElementById('siteUrl');
   urlEl.href = site.published_url; urlEl.textContent = site.published_url;
 }
+
 
 // ===== DASHBOARD (DATABASE) =====
 async function showDashboard() {
@@ -370,3 +408,5 @@ function showToast(msg, type) { const t = document.getElementById('toast'); t.te
 
 renderTemplates();
 document.getElementById('builderModal').addEventListener('click', function(e) { if (e.target === this) closeBuilder(); });
+
+checkStripeCallback();
