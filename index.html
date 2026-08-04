@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HarzBuilder — Build Your Business Website in Minutes</title>
-<meta name="description" content="AI-powered website builder for Nigerian businesses. Choose a template, fill in your details, go live. Pay with Paystack.">
+<meta name="description" content="AI-powered website builder for Nigerian businesses. Choose a template, fill in your details, go live. Pay with HarzPay.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,9 +12,7 @@
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar">
   <div class="navbar-inner">
-    <div class="navbar-logo">
-      <span>⚡ HarzBuilder</span>
-    </div>
+    <div class="navbar-logo"><span>⚡ HarzBuilder</span></div>
     <div class="navbar-links">
       <a href="#templates">Templates</a>
       <a href="#features">Features</a>
@@ -30,28 +28,16 @@
   <div class="hero-content">
     <div class="hero-badge">🇳🇬 Built for Nigerian Businesses</div>
     <h1>Build your business <span class="grad">website in minutes</span>, not weeks</h1>
-    <p>Choose a template, add your business details, and go live instantly. No coding needed. Pay with Paystack. Get a WhatsApp-integrated site your customers will love.</p>
+    <p>Choose a template, add your business details, and go live instantly. No coding needed. Pay with HarzPay — bank transfer, card, or crypto. Get a WhatsApp-integrated site your customers will love.</p>
     <div class="hero-cta">
       <button class="btn btn-primary btn-lg" onclick="openBuilder()">Start Building — Free</button>
       <a href="#templates" class="btn btn-outline btn-lg">Browse Templates</a>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-num">8</div>
-        <div class="hero-stat-label">Templates</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">5 min</div>
-        <div class="hero-stat-label">Avg Setup</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">₦0</div>
-        <div class="hero-stat-label">Free Plan</div>
-      </div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">Hausa</div>
-        <div class="hero-stat-label">Language Support</div>
-      </div>
+      <div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">Templates</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">5 min</div><div class="hero-stat-label">Avg Setup</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">₦0</div><div class="hero-stat-label">Free Plan</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">Hausa</div><div class="hero-stat-label">Language Support</div></div>
     </div>
   </div>
 </section>
@@ -62,9 +48,7 @@
     <h2 class="section-title">Choose Your Template</h2>
     <p class="section-subtitle">Pick a template designed for your type of business. Each one is mobile-first, fast, and WhatsApp-ready.</p>
   </div>
-  <div class="templates-grid" id="templatesGrid">
-    <!-- Templates loaded by JS -->
-  </div>
+  <div class="templates-grid" id="templatesGrid"></div>
 </section>
 
 <!-- ===== FEATURES ===== -->
@@ -74,36 +58,12 @@
     <p class="section-subtitle">No tech skills required. Just your business info and 5 minutes.</p>
   </div>
   <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <div class="feature-title">Instant Setup</div>
-      <div class="feature-desc">Pick a template, fill in your details, and your site is live immediately. No waiting for developers.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📱</div>
-      <div class="feature-title">Mobile-First</div>
-      <div class="feature-desc">Every template looks perfect on phones — where 90% of your customers will visit.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">💬</div>
-      <div class="feature-title">WhatsApp Integrated</div>
-      <div class="feature-desc">Customers can order, book, or contact you directly on WhatsApp. No extra apps needed.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">💳</div>
-      <div class="feature-title">Pay with Paystack</div>
-      <div class="feature-desc">Pay your subscription with card, bank transfer, or USSD via Paystack. Simple and secure.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌐</div>
-      <div class="feature-title">Hausa Support</div>
-      <div class="feature-desc">Build your site in English, Hausa, or both. Reach more customers in their language.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
-      <div class="feature-title">SEO Ready</div>
-      <div class="feature-desc">Your site is optimized for Google so customers can find your business online.</div>
-    </div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Instant Setup</div><div class="feature-desc">Pick a template, fill in your details, and your site is live immediately. No waiting for developers.</div></div>
+    <div class="feature-card"><div class="feature-icon">📱</div><div class="feature-title">Mobile-First</div><div class="feature-desc">Every template looks perfect on phones — where 90% of your customers will visit.</div></div>
+    <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">WhatsApp Integrated</div><div class="feature-desc">Customers can order, book, or contact you directly on WhatsApp. No extra apps needed.</div></div>
+    <div class="feature-card"><div class="feature-icon">💳</div><div class="feature-title">Pay with HarzPay</div><div class="feature-desc">Pay your subscription with bank transfer, card, GDEG tokens, or USDT via HarzPay. Multiple options, all secure.</div></div>
+    <div class="feature-card"><div class="feature-icon">🌐</div><div class="feature-title">Hausa Support</div><div class="feature-desc">Build your site in English, Hausa, or both. Reach more customers in their language.</div></div>
+    <div class="feature-card"><div class="feature-icon">🔍</div><div class="feature-title">SEO Ready</div><div class="feature-desc">Your site is optimized for Google so customers can find your business online.</div></div>
   </div>
 </section>
 
@@ -114,63 +74,20 @@
     <p class="section-subtitle">Start free. Upgrade when you're ready. No hidden fees. Cancel anytime.</p>
   </div>
   <div class="pricing-grid">
-    <div class="pricing-card">
-      <div class="pricing-name">Free</div>
-      <div class="pricing-price">₦0</div>
-      <div class="pricing-period">forever</div>
-      <ul class="pricing-features">
-        <li>1 website</li>
-        <li>Free harzbuilder.site subdomain</li>
-        <li>Basic templates</li>
-        <li>WhatsApp contact button</li>
-        <li>Mobile-responsive</li>
-      </ul>
+    <div class="pricing-card"><div class="pricing-name">Free</div><div class="pricing-price">₦0</div><div class="pricing-period">forever</div>
+      <ul class="pricing-features"><li>1 website</li><li>Free harzbuilder.site subdomain</li><li>Basic templates</li><li>WhatsApp contact button</li><li>Mobile-responsive</li></ul>
       <button class="btn btn-outline btn-block" onclick="openBuilder('free')">Start Free</button>
     </div>
-    <div class="pricing-card popular">
-      <div class="pricing-name">Starter</div>
-      <div class="pricing-price">₦5,000</div>
-      <div class="pricing-period">per month</div>
-      <ul class="pricing-features">
-        <li>1 website</li>
-        <li>Free harzbuilder.site subdomain</li>
-        <li>All templates including Pro</li>
-        <li>WhatsApp ordering & booking</li>
-        <li>Custom colors & logo</li>
-        <li>Remove HarzBuilder branding</li>
-        <li>Email support</li>
-      </ul>
+    <div class="pricing-card popular"><div class="pricing-name">Starter</div><div class="pricing-price">₦5,000</div><div class="pricing-period">per month</div>
+      <ul class="pricing-features"><li>1 website</li><li>Free harzbuilder.site subdomain</li><li>All templates including Pro</li><li>WhatsApp ordering & booking</li><li>Custom colors & logo</li><li>Remove HarzBuilder branding</li><li>Email support</li></ul>
       <button class="btn btn-primary btn-block" onclick="openBuilder('starter')">Choose Starter</button>
     </div>
-    <div class="pricing-card">
-      <div class="pricing-name">Pro</div>
-      <div class="pricing-price">₦10,000</div>
-      <div class="pricing-period">per month</div>
-      <ul class="pricing-features">
-        <li>3 websites</li>
-        <li>Custom domain (e.g. mybusiness.com)</li>
-        <li>All templates</li>
-        <li>WhatsApp ordering & booking</li>
-        <li>Custom colors & logo</li>
-        <li>Google Analytics</li>
-        <li>Priority WhatsApp support</li>
-        <li>SSL certificate</li>
-      </ul>
+    <div class="pricing-card"><div class="pricing-name">Pro</div><div class="pricing-price">₦10,000</div><div class="pricing-period">per month</div>
+      <ul class="pricing-features"><li>3 websites</li><li>Custom domain (e.g. mybusiness.com)</li><li>All templates</li><li>WhatsApp ordering & booking</li><li>Custom colors & logo</li><li>Google Analytics</li><li>Priority WhatsApp support</li><li>SSL certificate</li></ul>
       <button class="btn btn-outline btn-block" onclick="openBuilder('pro')">Choose Pro</button>
     </div>
-    <div class="pricing-card">
-      <div class="pricing-name">Enterprise</div>
-      <div class="pricing-price">₦50,000</div>
-      <div class="pricing-period">per month</div>
-      <ul class="pricing-features">
-        <li>Unlimited websites</li>
-        <li>Custom domains</li>
-        <li>AI chatbot integration</li>
-        <li>API access</li>
-        <li>Custom branding</li>
-        <li>Dedicated support manager</li>
-        <li>Team accounts</li>
-      </ul>
+    <div class="pricing-card"><div class="pricing-name">Enterprise</div><div class="pricing-price">₦50,000</div><div class="pricing-period">per month</div>
+      <ul class="pricing-features"><li>Unlimited websites</li><li>Custom domains</li><li>AI chatbot integration</li><li>API access</li><li>Custom branding</li><li>Dedicated support manager</li><li>Team accounts</li></ul>
       <button class="btn btn-outline btn-block" onclick="openBuilder('enterprise')">Contact Us</button>
     </div>
   </div>
@@ -178,15 +95,8 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <div>
-    <span>⚡ HarzBuilder — Part of the HARZ Ecosystem</span>
-  </div>
-  <div style="margin-top: 12px;">
-    <a href="#templates">Templates</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#features">Features</a>
-    <a href="https://wa.me/2348000000000">WhatsApp Support</a>
-  </div>
+  <div><span>⚡ HarzBuilder — Part of the HARZ Ecosystem | Powered by HarzPay</span></div>
+  <div style="margin-top: 12px;"><a href="#templates">Templates</a><a href="#pricing">Pricing</a><a href="#features">Features</a><a href="https://wa.me/2348000000000">WhatsApp Support</a></div>
   <div style="margin-top: 16px;">© 2026 Harz Technology Group. Made in Nigeria 🇳🇬</div>
 </footer>
 
@@ -194,12 +104,12 @@
 <div class="modal-overlay" id="builderModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="builderModalTitle">Create Your Website</div>
+      <div class="modal-title">Create Your Website</div>
       <button class="modal-close" onclick="closeBuilder()">&times;</button>
     </div>
     <div class="modal-body">
 
-      <!-- Step 1: Template Selection -->
+      <!-- Step 1: Template -->
       <div id="step1">
         <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 14px;">Choose a template for your business:</p>
         <div id="modalTemplates" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;"></div>
@@ -209,85 +119,40 @@
       <!-- Step 2: Business Details -->
       <div id="step2" class="hidden">
         <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 14px;">Tell us about your business:</p>
-        <div class="form-group">
-          <label class="form-label">Business Name *</label>
-          <input type="text" class="form-input" id="bizName" placeholder="e.g. Mama Nkechi Restaurant">
+        <div class="form-group"><label class="form-label">Business Name *</label><input type="text" class="form-input" id="bizName" placeholder="e.g. Mama Nkechi Restaurant"></div>
+        <div class="form-group"><label class="form-label">Business Category</label>
+          <select class="form-select" id="bizCategory"><option>Restaurant</option><option>Shop</option><option>Clinic</option><option>School</option><option>Salon</option><option>Services</option><option>Real Estate</option><option>Other</option></select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Business Category</label>
-          <select class="form-select" id="bizCategory">
-            <option>Restaurant</option>
-            <option>Shop</option>
-            <option>Clinic</option>
-            <option>School</option>
-            <option>Salon</option>
-            <option>Services</option>
-            <option>Real Estate</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Language</label>
+        <div class="form-group"><label class="form-label">Language</label>
           <div class="lang-toggle">
             <button class="lang-btn active" onclick="selectLang(this, 'English')">English</button>
             <button class="lang-btn" onclick="selectLang(this, 'Hausa')">Hausa</button>
             <button class="lang-btn" onclick="selectLang(this, 'Bilingual')">Bilingual</button>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="bizDesc" placeholder="What does your business do?"></textarea>
-        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="bizDesc" placeholder="What does your business do?"></textarea></div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Phone Number</label>
-            <input type="text" class="form-input" id="bizPhone" placeholder="08012345678">
-          </div>
-          <div class="form-group">
-            <label class="form-label">WhatsApp Number</label>
-            <input type="text" class="form-input" id="bizWhatsapp" placeholder="08012345678">
-          </div>
+          <div class="form-group"><label class="form-label">Phone Number</label><input type="text" class="form-input" id="bizPhone" placeholder="08012345678"></div>
+          <div class="form-group"><label class="form-label">WhatsApp Number</label><input type="text" class="form-input" id="bizWhatsapp" placeholder="08012345678"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="bizEmail" placeholder="you@business.com">
-        </div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="bizEmail" placeholder="you@business.com"></div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">City</label>
-            <input type="text" class="form-input" id="bizCity" placeholder="Abuja">
-          </div>
-          <div class="form-group">
-            <label class="form-label">State</label>
-            <input type="text" class="form-input" id="bizState" placeholder="FCT">
-          </div>
+          <div class="form-group"><label class="form-label">City</label><input type="text" class="form-input" id="bizCity" placeholder="Abuja"></div>
+          <div class="form-group"><label class="form-label">State</label><input type="text" class="form-input" id="bizState" placeholder="FCT"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Address</label>
-          <input type="text" class="form-input" id="bizAddress" placeholder="Street address">
-        </div>
-        <div style="display: flex; gap: 12px;">
-          <button class="btn btn-outline" onclick="backToStep1()">← Back</button>
-          <button class="btn btn-primary" style="flex: 1;" onclick="goToStep3()">Continue</button>
-        </div>
+        <div class="form-group"><label class="form-label">Address</label><input type="text" class="form-input" id="bizAddress" placeholder="Street address"></div>
+        <div style="display: flex; gap: 12px;"><button class="btn btn-outline" onclick="backToStep1()">← Back</button><button class="btn btn-primary" style="flex: 1;" onclick="goToStep3()">Continue</button></div>
       </div>
 
-      <!-- Step 3: Plan & Payment -->
+      <!-- Step 3: Plan Selection -->
       <div id="step3" class="hidden">
         <p style="color: var(--text-dim); margin-bottom: 20px; font-size: 14px;">Choose your plan:</p>
         <div id="planOptions" style="margin-bottom: 20px;"></div>
-        <div class="form-group">
-          <label class="form-label">Site Name (URL)</label>
-          <div style="display: flex; align-items: center; gap: 4px;">
-            <input type="text" class="form-input" id="subdomain" placeholder="mybusiness" style="flex: 1;">
-            <span style="color: var(--text-dim); font-size: 14px;">.harzbuilder.site</span>
-          </div>
+        <div class="form-group"><label class="form-label">Site Name (URL)</label>
+          <div style="display: flex; align-items: center; gap: 4px;"><input type="text" class="form-input" id="subdomain" placeholder="mybusiness" style="flex: 1;"><span style="color: var(--text-dim); font-size: 14px;">.harzbuilder.site</span></div>
           <div class="form-hint">This will be your free web address</div>
         </div>
-        <div style="display: flex; gap: 12px;">
-          <button class="btn btn-outline" onclick="backToStep2()">← Back</button>
-          <button class="btn btn-primary" style="flex: 1;" onclick="createSite()" id="createBtn">Create My Website</button>
-        </div>
+        <div style="display: flex; gap: 12px;"><button class="btn btn-outline" onclick="backToStep2()">← Back</button><button class="btn btn-primary" style="flex: 1;" onclick="createSite()" id="createBtn">Create My Website</button></div>
       </div>
 
       <!-- Step 4: Success -->
@@ -295,10 +160,33 @@
         <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
         <h3 style="font-size: 24px; margin-bottom: 8px;">Your website is live!</h3>
         <p style="color: var(--text-dim); margin-bottom: 20px;">Share it with your customers:</p>
-        <div style="background: var(--surface2); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px; word-break: break-all;">
-          <a id="siteUrl" href="#" target="_blank" style="color: var(--accent);"></a>
-        </div>
+        <div style="background: var(--surface2); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 20px; word-break: break-all;"><a id="siteUrl" href="#" target="_blank" style="color: var(--accent);"></a></div>
         <button class="btn btn-primary btn-block" onclick="closeBuilder(); showDashboard();">Go to Dashboard</button>
+      </div>
+
+      <!-- Step 5: HarzPay Payment -->
+      <div id="step5" class="hidden">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 32px; margin-bottom: 8px;">💳</div>
+          <h3 style="font-size: 18px; margin-bottom: 4px;">Pay with HarzPay</h3>
+          <p style="color: var(--text-dim); font-size: 14px;">Amount due: <span id="paymentAmount" style="color: var(--accent); font-weight: 600;"></span></p>
+        </div>
+        <p style="color: var(--text-dim); margin-bottom: 12px; font-size: 13px;">Select a payment method:</p>
+        <div id="paymentMethods" style="margin-bottom: 16px;"></div>
+        <button class="btn btn-primary btn-block" id="confirmPaymentBtn" onclick="processHarzPay()" disabled>Confirm Payment Method</button>
+
+        <!-- Payment Instructions (shown after method selected) -->
+        <div id="paymentInstructions" class="hidden" style="margin-top: 20px;">
+          <div style="background: var(--surface2); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">Payment Instructions:</div>
+            <div id="instructionsText" style="font-size: 14px; white-space: pre-line; line-height: 1.6;"></div>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+              <div style="font-size: 12px; color: var(--text-mute);">Reference:</div>
+              <div id="paymentRef" style="font-size: 14px; font-family: monospace; color: var(--accent); margin-top: 4px;"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block" id="verifyPaymentBtn" onclick="verifyHarzPay()" style="display:none;">I've Paid — Verify Payment</button>
+        </div>
       </div>
 
     </div>
@@ -308,10 +196,7 @@
 <!-- ===== DASHBOARD ===== -->
 <div class="dashboard hidden" id="dashboard">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo"><span>⚡ HarzBuilder</span></div>
-      <div class="sidebar-sub">Dashboard</div>
-    </div>
+    <div class="sidebar-header"><div class="sidebar-logo"><span>⚡ HarzBuilder</span></div><div class="sidebar-sub">Dashboard</div></div>
     <div class="sidebar-nav">
       <div class="sidebar-section">
         <div class="sidebar-title">MANAGE</div>
@@ -327,41 +212,20 @@
       </div>
     </div>
   </div>
-
   <div class="main">
-    <!-- Sites Page -->
     <div id="dashSites">
       <div class="main-header">
-        <div>
-          <div class="main-title">My Sites</div>
-          <div class="main-subtitle">Manage your business websites</div>
-        </div>
+        <div><div class="main-title">My Sites</div><div class="main-subtitle">Manage your business websites</div></div>
         <button class="btn btn-primary" onclick="openBuilder()">+ New Website</button>
       </div>
       <div class="dash-stats">
-        <div class="dash-stat">
-          <div class="dash-stat-label">Total Sites</div>
-          <div class="dash-stat-value" id="statSites">0</div>
-        </div>
-        <div class="dash-stat">
-          <div class="dash-stat-label">Published</div>
-          <div class="dash-stat-value" id="statPublished">0</div>
-        </div>
-        <div class="dash-stat">
-          <div class="dash-stat-label">Total Views</div>
-          <div class="dash-stat-value" id="statViews">0</div>
-        </div>
-        <div class="dash-stat">
-          <div class="dash-stat-label">Active Plan</div>
-          <div class="dash-stat-value" id="statPlan" style="font-size: 20px;">Free</div>
-        </div>
+        <div class="dash-stat"><div class="dash-stat-label">Total Sites</div><div class="dash-stat-value" id="statSites">0</div></div>
+        <div class="dash-stat"><div class="dash-stat-label">Published</div><div class="dash-stat-value" id="statPublished">0</div></div>
+        <div class="dash-stat"><div class="dash-stat-label">Total Views</div><div class="dash-stat-value" id="statViews">0</div></div>
+        <div class="dash-stat"><div class="dash-stat-label">Active Plan</div><div class="dash-stat-value" id="statPlan" style="font-size: 20px;">Free</div></div>
       </div>
       <div id="sitesList">
-        <div class="empty-state">
-          <div class="empty-state-icon">📄</div>
-          <div class="empty-state-text">No websites yet. Create your first one!</div>
-          <button class="btn btn-primary" onclick="openBuilder()">+ Create Website</button>
-        </div>
+        <div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-text">No websites yet. Create your first one!</div><button class="btn btn-primary" onclick="openBuilder()">+ Create Website</button></div>
       </div>
     </div>
   </div>
