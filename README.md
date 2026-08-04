@@ -1,24 +1,19 @@
-# Harz Builder
+# HarzBuilder v2.0
 
-AI-powered App & Agent Builder for the HARZ Ecosystem.
+AI-powered website builder for Nigerian businesses.
 
 ## Features
-- 🤖 Build AI Agents (Health, Security, DevOps, Mental Health, Education, Content)
-- 📱 Build Web Apps (Marketplace, Dashboard, Landing, SaaS, Chat)
-- 📡 Channel Integration (WhatsApp, Slack, iMessage)
-- 🎨 Templates for quick starts
-- 🚀 Deploy to Vercel/GitHub Pages
-- ☁️ Powered by HARZ Cloud API
+- 8 business templates (Restaurant, Shop, Clinic, School, Portfolio, Services, Salon, Real Estate)
+- 3-step builder flow
+- Paystack payment integration
+- WhatsApp integration
+- Hausa language support
+- Mobile-first design
 
-## Connected Services
-- HARZ Cloud: https://harz-cloud-backend.vercel.app
-- HarzGit: https://rabiuhamza11.github.io/harz-portfolio/harzgit.html
-- DeployForge: https://deployforge-harz.vercel.app
+## Pricing
+- Free: ₦0/mo
+- Starter: ₦5,000/mo
+- Pro: ₦10,000/mo
+- Enterprise: ₦50,000/mo
 
-## Tech Stack
-- Static HTML/CSS/JS
-- HARZ Cloud API (Vercel serverless)
-- GitHub Pages / Vercel deployment
-
-## Live
-https://harzbuild-ai.vercel.app
+Part of the HARZ Ecosystem.
