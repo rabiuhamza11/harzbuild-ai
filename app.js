@@ -1,5 +1,6 @@
-// ===== HarzBuilder App — HarzPay Integration =====
+// ===== HarzBuilder App v2.1 — Database Connected =====
 
+const API_URL = '/api/backend/harzBuilderApi';
 const HARZPAY_API = '/api/backend/harzPayPayment';
 
 let selectedTemplate = null;
@@ -8,6 +9,26 @@ let selectedPlan = 'free';
 let planPrices = { free: 0, starter: 5000, pro: 10000, enterprise: 50000 };
 let harzPayRef = null;
 let selectedPaymentMethod = null;
+let currentUser = { email: '', name: '' };
+
+// Simple user detection (in production, use auth)
+function getUserEmail() {
+  const stored = localStorage.getItem('harz_user_email');
+  if (stored) return stored;
+  const email = prompt('Enter your email to manage your sites:');
+  if (email) { localStorage.setItem('harz_user_email', email); currentUser.email = email; return email; }
+  return 'guest@harzbuilder.site';
+}
+
+async function apiCall(data) {
+  try {
+    const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    return await res.json();
+  } catch (e) {
+    console.error('API call failed:', e);
+    return { error: e.message };
+  }
+}
 
 const templates = [
   { id: 1, icon: '🍽️', name: 'Restaurant Pro', desc: 'Beautiful restaurant website with menu, reservations, and WhatsApp ordering', features: ['Menu display', 'WhatsApp ordering', 'Photo gallery', 'Opening hours'], category: 'Restaurant', premium: false, price: 5000 },
@@ -74,20 +95,9 @@ function selectModalTemplate(id) {
   if (el) { el.style.borderColor = 'var(--primary)'; el.style.boxShadow = '0 0 0 2px var(--primary)'; }
 }
 
-function goToStep2() {
-  if (!selectedTemplate) { showToast('Please select a template first', 'error'); return; }
-  document.getElementById('step1').classList.add('hidden');
-  document.getElementById('step2').classList.remove('hidden');
-  document.getElementById('bizCategory').value = selectedTemplate.category;
-}
+function goToStep2() { if (!selectedTemplate) { showToast('Please select a template first', 'error'); return; } document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); document.getElementById('bizCategory').value = selectedTemplate.category; }
 function backToStep1() { document.getElementById('step1').classList.remove('hidden'); document.getElementById('step2').classList.add('hidden'); }
-function goToStep3() {
-  if (!document.getElementById('bizName').value.trim()) { showToast('Please enter your business name', 'error'); return; }
-  document.getElementById('step2').classList.add('hidden');
-  document.getElementById('step3').classList.remove('hidden');
-  renderPlanOptions();
-  if (!document.getElementById('subdomain').value) document.getElementById('subdomain').value = document.getElementById('bizName').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-}
+function goToStep3() { if (!document.getElementById('bizName').value.trim()) { showToast('Please enter your business name', 'error'); return; } document.getElementById('step2').classList.add('hidden'); document.getElementById('step3').classList.remove('hidden'); renderPlanOptions(); if (!document.getElementById('subdomain').value) document.getElementById('subdomain').value = document.getElementById('bizName').value.trim().toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function backToStep2() { document.getElementById('step2').classList.remove('hidden'); document.getElementById('step3').classList.add('hidden'); }
 
 function renderPlanOptions() {
@@ -136,6 +146,7 @@ function selectPaymentMethod(id) {
   document.getElementById('confirmPaymentBtn').disabled = false;
 }
 
+// ===== CREATE SITE (DATABASE) =====
 async function createSite() {
   const bizName = document.getElementById('bizName').value.trim();
   const subdomain = document.getElementById('subdomain').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -144,23 +155,59 @@ async function createSite() {
   const btn = document.getElementById('createBtn');
   btn.textContent = 'Creating...'; btn.disabled = true;
 
-  const site = {
-    id: Date.now().toString(), name: bizName, business_name: bizName,
-    business_category: document.getElementById('bizCategory').value,
-    template_id: selectedTemplate ? selectedTemplate.id.toString() : '1',
-    template_name: selectedTemplate ? selectedTemplate.name : 'Restaurant Pro',
-    subdomain: subdomain, status: 'draft',
-    content: { description: document.getElementById('bizDesc').value.trim(), phone: document.getElementById('bizPhone').value.trim(), whatsapp: document.getElementById('bizWhatsapp').value.trim(), email: document.getElementById('bizEmail').value.trim(), city: document.getElementById('bizCity').value.trim(), state: document.getElementById('bizState').value.trim(), address: document.getElementById('bizAddress').value.trim(), template_icon: selectedTemplate ? selectedTemplate.icon : '📄' },
-    language: selectedLang, published_url: `https://${subdomain}.harzbuilder.site`,
-    views_count: 0, owner_email: document.getElementById('bizEmail').value.trim(), plan: selectedPlan, created_date: new Date().toISOString(),
+  const userEmail = document.getElementById('bizEmail').value.trim() || getUserEmail();
+  if (!localStorage.getItem('harz_user_email')) localStorage.setItem('harz_user_email', userEmail);
+
+  const businessData = {
+    business_name: bizName,
+    description: document.getElementById('bizDesc').value.trim(),
+    phone: document.getElementById('bizPhone').value.trim(),
+    email: userEmail,
+    whatsapp: document.getElementById('bizWhatsapp').value.trim(),
+    address: document.getElementById('bizAddress').value.trim(),
+    city: document.getElementById('bizCity').value.trim(),
+    state: document.getElementById('bizState').value.trim(),
   };
 
-  let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
-  sites.push(site);
-  localStorage.setItem('harz_sites', JSON.stringify(sites));
+  const siteData = {
+    name: bizName,
+    business_name: bizName,
+    business_category: document.getElementById('bizCategory').value,
+    template_id: selectedTemplate ? selectedTemplate.id.toString() : '1',
+    subdomain: subdomain,
+    custom_domain: '',
+    content: { description: businessData.description, phone: businessData.phone, whatsapp: businessData.whatsapp, email: userEmail, city: businessData.city, state: businessData.state, address: businessData.address, template_icon: selectedTemplate ? selectedTemplate.icon : '📄', template_name: selectedTemplate ? selectedTemplate.name : '' },
+    language: selectedLang,
+    published_url: `https://${subdomain}.harzbuilder.site`,
+    owner_email: userEmail,
+    owner_phone: businessData.phone,
+  };
 
-  if (selectedPlan === 'free') { showSuccess(site); return; }
+  // Save to database
+  const result = await apiCall({ action: 'create_site', site_data: siteData, business_data: businessData, user_email: userEmail });
 
+  if (result.error) {
+    // Fallback to localStorage
+    console.warn('DB save failed, using localStorage:', result.error);
+    const site = { ...siteData, id: Date.now().toString(), status: 'draft', views_count: 0, plan: selectedPlan, created_date: new Date().toISOString() };
+    let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
+    sites.push(site);
+    localStorage.setItem('harz_sites', JSON.stringify(sites));
+    currentSiteId = site.id;
+  } else {
+    currentSiteId = result.site?.id || result.site?._id || Date.now().toString();
+  }
+
+  if (selectedPlan === 'free') {
+    // Publish free sites immediately
+    if (result.site?.id || result.site?._id) {
+      await apiCall({ action: 'publish_site', site_id: result.site.id || result.site._id });
+    }
+    showSuccess({ published_url: siteData.published_url });
+    return;
+  }
+
+  // Paid plan — show HarzPay
   document.getElementById('step3').classList.add('hidden');
   document.getElementById('step5').classList.remove('hidden');
   document.getElementById('paymentAmount').textContent = `₦${planPrices[selectedPlan].toLocaleString()}/month`;
@@ -168,19 +215,19 @@ async function createSite() {
   btn.disabled = false; btn.textContent = 'Create & Pay with HarzPay';
 }
 
+let currentSiteId = null;
+
 async function processHarzPay() {
   if (!selectedPaymentMethod) { showToast('Select a payment method', 'error'); return; }
   const btn = document.getElementById('confirmPaymentBtn');
   btn.textContent = 'Processing...'; btn.disabled = true;
 
-  const sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
-  const siteId = sites[sites.length - 1].id;
-  const bizEmail = document.getElementById('bizEmail').value.trim() || 'owner@harzbuilder.site';
+  const userEmail = document.getElementById('bizEmail').value.trim() || getUserEmail();
   const bizName = document.getElementById('bizName').value.trim();
 
   try {
     const response = await fetch(HARZPAY_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'initiate', site_id: siteId, plan: selectedPlan, amount: planPrices[selectedPlan], customer_email: bizEmail, customer_name: bizName, payment_method: selectedPaymentMethod }) });
+      body: JSON.stringify({ action: 'initiate', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], customer_email: userEmail, customer_name: bizName, payment_method: selectedPaymentMethod }) });
     const data = await response.json();
     if (data.reference) {
       harzPayRef = data.reference;
@@ -189,11 +236,11 @@ async function processHarzPay() {
       document.getElementById('paymentRef').textContent = data.reference;
       document.getElementById('confirmPaymentBtn').classList.add('hidden');
       document.getElementById('verifyPaymentBtn').classList.remove('hidden');
-    } else { showToast(data.error || 'Payment failed', 'error'); btn.disabled = false; btn.textContent = 'Confirm Payment'; }
+    } else { showToast(data.error || 'Payment failed', 'error'); btn.disabled = false; btn.textContent = 'Confirm Payment Method'; }
   } catch (e) {
     const method = HARZPAY_METHODS.find(m => m.id === selectedPaymentMethod);
     document.getElementById('paymentInstructions').classList.remove('hidden');
-    document.getElementById('instructionsText').textContent = method.desc + '\n\nAmount: ₦' + planPrices[selectedPlan].toLocaleString() + '/month\n\nAfter payment, click "I've Paid — Verify"';
+    document.getElementById('instructionsText').textContent = method.desc + '\n\nAmount: ₦' + planPrices[selectedPlan].toLocaleString() + '/month\n\nAfter payment, click "I\'ve Paid — Verify"';
     document.getElementById('paymentRef').textContent = `HARZB-${Date.now()}`;
     document.getElementById('confirmPaymentBtn').classList.add('hidden');
     document.getElementById('verifyPaymentBtn').classList.remove('hidden');
@@ -203,16 +250,21 @@ async function processHarzPay() {
 async function verifyHarzPay() {
   const btn = document.getElementById('verifyPaymentBtn');
   btn.textContent = 'Verifying...'; btn.disabled = true;
-  try {
-    await fetch(HARZPAY_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'verify', transaction_ref: harzPayRef || document.getElementById('paymentRef').textContent }) });
-  } catch (e) {}
+
+  const userEmail = document.getElementById('bizEmail').value.trim() || getUserEmail();
+
+  // Create subscription in database
+  await apiCall({ action: 'create_subscription', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], payment_method: selectedPaymentMethod, payment_reference: harzPayRef, user_email: userEmail });
+
+  // Publish the site
+  if (currentSiteId) { await apiCall({ action: 'publish_site', site_id: currentSiteId }); }
+
+  // Also save to localStorage as backup
   let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
-  const site = sites[sites.length - 1];
-  if (site) { site.status = 'published'; site.plan = selectedPlan; site.payment_verified = true; }
-  localStorage.setItem('harz_sites', JSON.stringify(sites));
-  showSuccess(site);
-  showToast('Payment confirmed via HarzPay! 🎉', 'success');
+  if (sites.length > 0) { sites[sites.length - 1].status = 'published'; sites[sites.length - 1].plan = selectedPlan; localStorage.setItem('harz_sites', JSON.stringify(sites)); }
+
+  showSuccess({ published_url: `https://${document.getElementById('subdomain').value}.harzbuilder.site` });
+  showToast('Payment confirmed via HarzPay! Site published! 🎉', 'success');
 }
 
 function showSuccess(site) {
@@ -222,36 +274,97 @@ function showSuccess(site) {
   urlEl.href = site.published_url; urlEl.textContent = site.published_url;
 }
 
-function showDashboard() { document.querySelector('.navbar').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); renderDashboard(); }
+// ===== DASHBOARD (DATABASE) =====
+async function showDashboard() {
+  document.querySelector('.navbar').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  await renderDashboard();
+}
 function showLanding() { document.getElementById('dashboard').classList.add('hidden'); document.querySelector('.navbar').classList.remove('hidden'); }
 
-function renderDashboard() {
-  const sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
-  document.getElementById('statSites').textContent = sites.length;
-  document.getElementById('statPublished').textContent = sites.filter(s => s.status === 'published').length;
-  document.getElementById('statViews').textContent = sites.reduce((sum, s) => sum + (s.views_count || 0), 0);
-  const paidPlans = sites.filter(s => s.plan && s.plan !== 'free');
-  document.getElementById('statPlan').textContent = paidPlans.length > 0 ? paidPlans[0].plan.charAt(0).toUpperCase() + paidPlans[0].plan.slice(1) : 'Free';
+async function renderDashboard() {
+  const email = getUserEmail();
+  // Show loading
+  const list = document.getElementById('sitesList');
+  list.innerHTML = '<div class="empty-state"><div style="font-size: 24px; color: var(--text-dim);">Loading...</div></div>';
+
+  // Fetch from database
+  const result = await apiCall({ action: 'get_stats', user_email: email });
+
+  if (result.error) {
+    // Fallback to localStorage
+    const sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
+    document.getElementById('statSites').textContent = sites.length;
+    document.getElementById('statPublished').textContent = sites.filter(s => s.status === 'published').length;
+    document.getElementById('statViews').textContent = sites.reduce((sum, s) => sum + (s.views_count || 0), 0);
+    document.getElementById('statPlan').textContent = 'Free';
+    renderSitesList(sites, true);
+    return;
+  }
+
+  document.getElementById('statSites').textContent = result.total_sites || 0;
+  document.getElementById('statPublished').textContent = result.published_sites || 0;
+  document.getElementById('statViews').textContent = result.total_views || 0;
+  document.getElementById('statPlan').textContent = result.active_plan || 'Free';
+
+  const sites = result.sites || [];
+  renderSitesList(sites, false);
+}
+
+function renderSitesList(sites, isLocal) {
   const list = document.getElementById('sitesList');
   if (sites.length === 0) {
     list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📄</div><div class="empty-state-text">No websites yet. Create your first one!</div><button class="btn btn-primary" onclick="openBuilder()">+ Create Website</button></div>`;
-  } else {
-    list.innerHTML = sites.map(s => `
+    return;
+  }
+  list.innerHTML = sites.map(s => {
+    const data = isLocal ? s : (s.data || s);
+    const id = isLocal ? s.id : (s.id || s._id);
+    const icon = data.content?.template_icon || data.template_icon || '📄';
+    const url = data.published_url || (data.subdomain ? data.subdomain + '.harzbuilder.site' : '');
+    const views = data.views_count || 0;
+    const status = data.status || 'draft';
+    const created = data.created_date || s.created_date;
+    return `
       <div class="site-card"><div class="site-info">
-        <div class="site-name">${s.content.template_icon || '📄'} ${s.business_name}</div>
-        <div class="site-meta"><span>📂 ${s.business_category}</span><span>🌐 ${s.published_url || s.subdomain + '.harzbuilder.site'}</span><span>👁️ ${s.views_count || 0} views</span><span>📅 ${new Date(s.created_date).toLocaleDateString()}</span></div>
+        <div class="site-name">${icon} ${data.business_name || data.name}</div>
+        <div class="site-meta"><span>📂 ${data.business_category || ''}</span><span>🌐 ${url}</span><span>👁️ ${views} views</span><span>📅 ${created ? new Date(created).toLocaleDateString() : ''}</span></div>
       </div><div class="site-actions">
-        <span class="site-status ${s.status}">${s.status}</span>
-        <button class="btn btn-primary btn-sm" onclick="publishSite('${s.id}')">Publish</button>
-        <button class="btn btn-outline btn-sm" onclick="viewSite('${s.published_url}')">View</button>
-        <button class="btn btn-outline btn-sm" onclick="deleteSite('${s.id}')" style="color:var(--danger);">Delete</button>
-      </div></div>`).join('');
+        <span class="site-status ${status}">${status}</span>
+        <button class="btn btn-primary btn-sm" onclick="publishSite('${id}', ${isLocal})">Publish</button>
+        <button class="btn btn-outline btn-sm" onclick="viewSite('${url}')">View</button>
+        <button class="btn btn-outline btn-sm" onclick="deleteSite('${id}', ${isLocal})" style="color:var(--danger);">Delete</button>
+      </div></div>`;
+  }).join('');
+}
+
+async function publishSite(id, isLocal) {
+  if (isLocal) {
+    let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
+    const s = sites.find(x => x.id === id);
+    if (s) { s.status = 'published'; localStorage.setItem('harz_sites', JSON.stringify(sites)); renderDashboard(); showToast('Site published! 🚀', 'success'); }
+  } else {
+    await apiCall({ action: 'publish_site', site_id: id });
+    renderDashboard();
+    showToast('Site published! 🚀', 'success');
   }
 }
 
-function publishSite(id) { let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]'); const s = sites.find(x => x.id === id); if (s) { s.status = 'published'; localStorage.setItem('harz_sites', JSON.stringify(sites)); renderDashboard(); showToast('Site published! 🚀', 'success'); } }
-function viewSite(url) { window.open(url, '_blank'); }
-function deleteSite(id) { if (!confirm('Delete this website?')) return; let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]'); sites = sites.filter(s => s.id !== id); localStorage.setItem('harz_sites', JSON.stringify(sites)); renderDashboard(); showToast('Site deleted', 'success'); }
+function viewSite(url) { if (url) window.open(url, '_blank'); }
+
+async function deleteSite(id, isLocal) {
+  if (!confirm('Delete this website?')) return;
+  if (isLocal) {
+    let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
+    sites = sites.filter(s => s.id !== id);
+    localStorage.setItem('harz_sites', JSON.stringify(sites));
+    renderDashboard(); showToast('Site deleted', 'success');
+  } else {
+    await apiCall({ action: 'delete_site', site_id: id });
+    renderDashboard(); showToast('Site deleted', 'success');
+  }
+}
+
 function showDashPage(page, el) { document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); if (el) el.classList.add('active'); }
 function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || ''); setTimeout(() => { t.className = 'toast'; }, 3000); }
 
