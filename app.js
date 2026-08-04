@@ -2,7 +2,7 @@
 
 const API_URL = '/api/backend/harzBuilderApi';
 const HARZPAY_API = '/api/backend/harzPayPayment';
-const STRIPE_API = "/api/backend/stripeCardPayment";
+const PAYSTACK_API = "/api/backend/paystackPayment";
 
 let selectedTemplate = null;
 let selectedLang = 'English';
@@ -230,13 +230,13 @@ async function processHarzPay() {
   // CARD PAYMENT → Stripe Checkout
   if (selectedPaymentMethod === 'card') {
     try {
-      const response = await fetch(STRIPE_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(PAYSTACK_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'create_checkout', site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], customer_email: userEmail, customer_name: bizName, plan_name: selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1) }) });
       const data = await response.json();
-      if (data.checkout_url) {
+      if (data.authorization_url) {
         // Save pending payment info before redirect
-        localStorage.setItem('pending_stripe_payment', JSON.stringify({ site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], subdomain: document.getElementById('subdomain').value }));
-        window.location.href = data.checkout_url;
+        localStorage.setItem('pending_paystack_payment', JSON.stringify({ site_id: currentSiteId, plan: selectedPlan, amount: planPrices[selectedPlan], subdomain: document.getElementById('subdomain').value }));
+        window.location.href = data.authorization_url;
         return;
       } else {
         showToast(data.error || 'Card payment failed. Try another method.', 'error');
@@ -289,15 +289,15 @@ async function verifyHarzPay() {
 function checkStripeCallback() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('payment') === 'success') {
-    const pending = JSON.parse(localStorage.getItem('pending_stripe_payment') || '{}');
+    const pending = JSON.parse(localStorage.getItem('pending_paystack_payment') || '{}');
     if (pending.site_id) {
       // Create subscription and publish site
-      apiCall({ action: 'create_subscription', site_id: pending.site_id, plan: pending.plan, amount: pending.amount, payment_method: 'card', payment_reference: 'stripe_' + Date.now(), user_email: getUserEmail() });
+      apiCall({ action: 'create_subscription', site_id: pending.site_id, plan: pending.plan, amount: pending.amount, payment_method: 'card', payment_reference: 'paystack_' + Date.now(), user_email: getUserEmail() });
       apiCall({ action: 'publish_site', site_id: pending.site_id });
       let sites = JSON.parse(localStorage.getItem('harz_sites') || '[]');
       if (sites.length > 0) { sites[sites.length - 1].status = 'published'; sites[sites.length - 1].plan = pending.plan; localStorage.setItem('harz_sites', JSON.stringify(sites)); }
-      localStorage.removeItem('pending_stripe_payment');
-      showToast('Card payment successful! Site published! 🎉', 'success');
+      localStorage.removeItem('pending_paystack_payment');
+      showToast('Payment successful! Site published! 🎉', 'success');
       setTimeout(() => showDashboard(), 1500);
     }
     window.history.replaceState({}, '', window.location.pathname);
