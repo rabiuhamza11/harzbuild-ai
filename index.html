@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harz Builder — AI App & Agent Builder for HARZ Ecosystem</title>
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #131826;
+  --surface2: #1a2035;
+  --primary: #6C5CE7;
+  --primary-glow: rgba(108, 92, 231, 0.4);
+  --accent: #00D9FF;
+  --success: #00E676;
+  --warning: #FFB74D;
+  --danger: #FF5252;
+  --text: #E8E8F0;
+  --text-dim: #8B8BA7;
+  --border: #2a2f45;
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.nav { padding: 16px 12px; flex: 1; }
+.nav-section { margin-bottom: 24px; }
+.nav-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  padding: 8px 12px;
+  font-weight: 600;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: all 0.2s;
+  font-size: 14px;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  color: white;
+}
+.nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* Main */
+.main {
+  flex: 1;
+  margin-left: 260px;
+  padding: 32px;
+}
+.page { display: none; }
+.page.active { display: block; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.page-title { font-size: 28px; font-weight: 700; }
+.page-subtitle { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Grid */
+.grid { display: grid; gap: 20px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .sidebar { width: 70px; }
+  .nav-item span { display: none; }
+  .nav-title { display: none; }
+  .main { margin-left: 70px; }
+}
+
+/* Stat */
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.stat-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.stat-value { font-size: 32px; font-weight: 700; margin: 8px 0; }
+.stat-trend { font-size: 12px; }
+.stat-trend.up { color: var(--success); }
+.stat-trend.down { color: var(--danger); }
+
+/* Builder Templates */
+.template {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.template:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+.template-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+.template-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.template-desc { font-size: 13px; color: var(--text-dim); }
+.template-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+/* Agent Builder */
+.agent-form { display: grid; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+.form-input, .form-select, .form-textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+.form-textarea { min-height: 80px; resize: vertical; }
+
+/* Button */
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  color: white;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--primary); }
+
+/* Channel cards */
+.channel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.channel-header { display: flex; align-items: center; gap: 12px; }
+.channel-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.channel-icon.whatsapp { background: #25D366; }
+.channel-icon.slack { background: #4A154B; }
+.channel-icon.imessage { background: #34DA50; }
+.channel-name { font-weight: 600; }
+.channel-status {
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
+.channel-status.connected { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+.channel-status.disconnected { background: rgba(255, 82, 82, 0.15); color: var(--danger); }
+
+/* Agent cards */
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.3s;
+}
+.agent-card:hover { border-color: var(--primary); }
+.agent-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.agent-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.agent-info { flex: 1; }
+.agent-name { font-weight: 600; }
+.agent-role { font-size: 12px; color: var(--text-dim); }
+.agent-success {
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.success-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface2);
+  margin-top: 8px;
+  overflow: hidden;
+}
+.success-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--success), var(--accent));
+}
+
+/* Deploy list */
+.deploy-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.deploy-item:last-child { border-bottom: none; }
+.deploy-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.deploy-dot.live { background: var(--success); box-shadow: 0 0 8px var(--success); }
+.deploy-dot.dev { background: var(--warning); }
+.deploy-dot.down { background: var(--danger); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  z-index: 100;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Code preview */
+.code-preview {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: #c9d1d9;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-keyword { color: #ff7b72; }
+.code-string { color: #a5d6ff; }
+.code-comment { color: #8b949e; }
+.code-fn { color: #d2a8ff; }
+
+/* Tab */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.badge-new { background: rgba(0, 217, 255, 0.15); color: var(--accent); }
+.badge-live { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+.badge-dev { background: rgba(255, 183, 77, 0.15); color: var(--warning); }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+  border-radius: 50%;
+}
+.hero-content { position: relative; z-index: 1; }
+.hero-title { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+.hero-sub { font-size: 16px; color: var(--text-dim); margin-bottom: 20px; max-width: 500px; }
+.hero-actions { display: flex; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">⚡ Harz Builder</div>
+      <div class="logo-sub">AI App & Agent Builder v1.0</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">
+        <div class="nav-title">Builder</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </div>
+        <div class="nav-item" onclick="showPage('templates')">
+          <span class="nav-icon">🎨</span><span>Templates</span>
+          <span class="badge badge-new" style="margin-left:auto">NEW</span>
+        </div>
+        <div class="nav-item" onclick="showPage('agent-builder')">
+          <span class="nav-icon">🤖</span><span>Build Agent</span>
+        </div>
+        <div class="nav-item" onclick="showPage('app-builder')">
+          <span class="nav-icon">📱</span><span>Build App</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-title">Manage</div>
+        <div class="nav-item" onclick="showPage('agents')">
+          <span class="nav-icon">🧠</span><span>Agents</span>
+        </div>
+        <div class="nav-item" onclick="showPage('channels')">
+          <span class="nav-icon">📡</span><span>Channels</span>
+        </div>
+        <div class="nav-item" onclick="showPage('deployments')">
+          <span class="nav-icon">🚀</span><span>Deployments</span>
+        </div>
+        <div class="nav-item" onclick="showPage('settings')">
+          <span class="nav-icon">⚙️</span><span>Settings</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-title">Ecosystem</div>
+        <div class="nav-item" onclick="window.open('https://harz-cloud-backend.vercel.app','_blank')">
+          <span class="nav-icon">☁️</span><span>HARZ Cloud</span>
+        </div>
+        <div class="nav-item" onclick="window.open('https://rabiuhamza11.github.io/harz-portfolio/harzgit.html','_blank')">
+          <span class="nav-icon">📦</span><span>HarzGit</span>
+        </div>
+        <div class="nav-item" onclick="window.open('https://deployforge-harz.vercel.app','_blank')">
+          <span class="nav-icon">🔧</span><span>DeployForge</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      HARZ Ecosystem v3.1<br>
+      Connected to HARZ Cloud
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Dashboard Page -->
+    <div class="page active" id="page-dashboard">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="hero-title">Build. Deploy. Connect.</div>
+          <div class="hero-sub">The AI-powered builder for the HARZ Ecosystem. Create AI agents, apps, and websites — then connect them to WhatsApp, Slack, and iMessage.</div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="showPage('templates')">🎨 Browse Templates</button>
+            <button class="btn btn-ghost" onclick="showPage('agent-builder')">🤖 Build Agent</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-4">
+        <div class="stat">
+          <div class="stat-label">AI Agents</div>
+          <div class="stat-value" id="stat-agents">7</div>
+          <div class="stat-trend up">↑ 95.4% avg success</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Platforms</div>
+          <div class="stat-value" id="stat-platforms">49</div>
+          <div class="stat-trend up">↑ 45 live</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Repositories</div>
+          <div class="stat-value" id="stat-repos">62</div>
+          <div class="stat-trend up">↑ Active</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Channels</div>
+          <div class="stat-value">3</div>
+          <div class="stat-trend">WhatsApp · Slack · iMessage</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="card">
+          <div class="card-title">⚡ Quick Start</div>
+          <div style="display:grid;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:8px;cursor:pointer" onclick="showPage('agent-builder')">
+              <span style="font-size:24px">🤖</span>
+              <div><div style="font-weight:600;font-size:14px">Create AI Agent</div><div style="font-size:12px;color:var(--text-dim)">Build a specialist agent for health, security, DevOps...</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:8px;cursor:pointer" onclick="showPage('app-builder')">
+              <span style="font-size:24px">📱</span>
+              <div><div style="font-weight:600;font-size:14px">Build Web App</div><div style="font-size:12px;color:var(--text-dim)">Create a new platform for the ecosystem</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:8px;cursor:pointer" onclick="showPage('channels')">
+              <span style="font-size:24px">📡</span>
+              <div><div style="font-weight:600;font-size:14px">Connect Channel</div><div style="font-size:12px;color:var(--text-dim)">Wire agents to WhatsApp, Slack, iMessage</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🌐 HARZ Cloud Status</div>
+          <div id="cloud-status">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates Page -->
+    <div class="page" id="page-templates">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🎨 Templates</div>
+          <div class="page-subtitle">Choose a starting point for your next build</div>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div class="template" onclick="createAgent('health')">
+          <div class="template-badge">POPULAR</div>
+          <div class="template-icon">🏥</div>
+          <div class="template-name">Health AI Agent</div>
+          <div class="template-desc">Symptom assessment, wellness tips, medical triage with disclaimers</div>
+        </div>
+        <div class="template" onclick="createAgent('security')">
+          <div class="template-icon">🛡️</div>
+          <div class="template-name">Security AI Agent</div>
+          <div class="template-desc">Threat assessment, vulnerability scanning, security guidance</div>
+        </div>
+        <div class="template" onclick="createAgent('devops')">
+          <div class="template-icon">⚙️</div>
+          <div class="template-name">DevOps Agent</div>
+          <div class="template-desc">Deployment management, CI/CD pipeline, infrastructure monitoring</div>
+        </div>
+        <div class="template" onclick="createAgent('mental')">
+          <div class="template-icon">🧠</div>
+          <div class="template-name">Mental Health Agent</div>
+          <div class="template-desc">Emotional support, coping strategies, wellness check-ins</div>
+        </div>
+        <div class="template" onclick="createAgent('content')">
+          <div class="template-icon">✍️</div>
+          <div class="template-name">Content Creator</div>
+          <div class="template-desc">Blog posts, social media, marketing copy, creative direction</div>
+        </div>
+        <div class="template" onclick="createAgent('education')">
+          <div class="template-icon">📚</div>
+          <div class="template-name">Education Agent</div>
+          <div class="template-desc">Learning paths, study guides, course creation, tutoring</div>
+        </div>
+        <div class="template" onclick="createApp('marketplace')">
+          <div class="template-badge">NEW</div>
+          <div class="template-icon">🛒</div>
+          <div class="template-name">Marketplace App</div>
+          <div class="template-desc">Digital products, multi-seller, Stripe/Paystack payments</div>
+        </div>
+        <div class="template" onclick="createApp('dashboard')">
+          <div class="template-icon">📊</div>
+          <div class="template-name">Dashboard App</div>
+          <div class="template-desc">Analytics, charts, real-time data from HARZ Cloud API</div>
+        </div>
+        <div class="template" onclick="createApp('landing')">
+          <div class="template-icon">🌐</div>
+          <div class="template-name">Landing Page</div>
+          <div class="template-desc">Product showcase, hero sections, CTA optimization</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Builder Page -->
+    <div class="page" id="page-agent-builder">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🤖 Build AI Agent</div>
+          <div class="page-subtitle">Create a specialist agent for the HARZ Ecosystem</div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">⚙️ Agent Configuration</div>
+          <div class="agent-form">
+            <div class="form-group">
+              <label class="form-label">Agent Name</label>
+              <input class="form-input" id="agent-name" placeholder="e.g. MedBot, SecGuard, CodePilot">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Domain / Specialty</label>
+              <select class="form-select" id="agent-domain">
+                <option value="health">🏥 Health & Medical</option>
+                <option value="security">🛡️ Cybersecurity</option>
+                <option value="devops">⚙️ DevOps & Infrastructure</option>
+                <option value="mental">🧠 Mental Health</option>
+                <option value="education">📚 Education</option>
+                <option value="content">✍️ Content Creation</option>
+                <option value="finance">💰 Finance & Trading</option>
+                <option value="general">🤖 General Assistant</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">System Prompt</label>
+              <textarea class="form-textarea" id="agent-prompt" placeholder="You are... Your role is... You help with..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Language</label>
+              <select class="form-select" id="agent-lang">
+                <option value="bilingual">🌐 Bilingual (Hausa + English)</option>
+                <option value="ha">🗣️ Hausa</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Keywords (comma-separated)</label>
+              <input class="form-input" id="agent-keywords" placeholder="health, sick, symptom, fever, pain">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Connect to Channels</label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border-radius:8px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="ch-wa"> WhatsApp
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border-radius:8px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="ch-sl"> Slack
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border-radius:8px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" id="ch-im"> iMessage
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="buildAgent()">🚀 Build Agent</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">👁️ Preview</div>
+          <div id="agent-preview">
+            <div style="text-align:center;padding:40px;color:var(--text-dim)">
+              <span style="font-size:48px">🤖</span>
+              <p style="margin-top:12px">Fill in the form to preview your agent</p>
+            </div>
+          </div>
+          <div id="agent-code" style="margin-top:16px;display:none">
+            <div class="card-title">📄 Generated Config</div>
+            <div class="code-preview" id="agent-code-block"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Builder Page -->
+    <div class="page" id="page-app-builder">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📱 Build Web App</div>
+          <div class="page-subtitle">Create a new platform for the HARZ Ecosystem</div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">⚙️ App Configuration</div>
+          <div class="agent-form">
+            <div class="form-group">
+              <label class="form-label">App Name</label>
+              <input class="form-input" id="app-name" placeholder="e.g. HarzPay, MindCare AI">
+            </div>
+            <div class="form-group">
+              <label class="form-label">App Type</label>
+              <select class="form-select" id="app-type">
+                <option value="marketplace">🛒 Marketplace</option>
+                <option value="dashboard">📊 Dashboard</option>
+                <option value="landing">🌐 Landing Page</option>
+                <option value="saas">💼 SaaS Platform</option>
+                <option value="chat">💬 Chat App</option>
+                <option value="portfolio">📁 Portfolio</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="app-category">
+                <option>AI</option><option>Health</option><option>Finance</option>
+                <option>Security</option><option>Media</option><option>DevOps</option>
+                <option>Education</option><option>Marketplace</option><option>Infrastructure</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="app-desc" placeholder="What does this app do?"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Theme</label>
+              <select class="form-select" id="app-theme">
+                <option value="dark">🌙 Dark</option>
+                <option value="light">☀️ Light</option>
+                <option value="auto">🌓 Auto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Data Source</label>
+              <select class="form-select" id="app-datasource">
+                <option value="harz-cloud">☁️ HARZ Cloud API</option>
+                <option value="static">📦 Static Data</option>
+                <option value="hybrid">🔄 Hybrid (API + Fallback)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="buildApp()">🔨 Build App</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">👁️ Preview</div>
+          <div id="app-preview">
+            <div style="text-align:center;padding:40px;color:var(--text-dim)">
+              <span style="font-size:48px">📱</span>
+              <p style="margin-top:12px">Configure your app to see a preview</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agents Page -->
+    <div class="page" id="page-agents">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🧠 AI Agents</div>
+          <div class="page-subtitle">Manage your ecosystem's intelligent agents</div>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('agent-builder')">➕ New Agent</button>
+      </div>
+      <div class="grid grid-3" id="agents-grid"></div>
+    </div>
+
+    <!-- Channels Page -->
+    <div class="page" id="page-channels">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📡 Channels</div>
+          <div class="page-subtitle">Connect agents to messaging platforms</div>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        <div class="channel-card">
+          <div class="channel-header">
+            <div class="channel-icon whatsapp">💬</div>
+            <div>
+              <div class="channel-name">WhatsApp</div>
+              <span class="channel-status disconnected" id="wa-status">Not Connected</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--text-dim)">Connect via Meta WhatsApp Cloud API. Agents reply to users directly on WhatsApp.</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="connectChannel('whatsapp')">Connect</button>
+            <button class="btn btn-ghost" onclick="showSetup('whatsapp')">Setup Guide</button>
+          </div>
+        </div>
+        <div class="channel-card">
+          <div class="channel-header">
+            <div class="channel-icon slack">💼</div>
+            <div>
+              <div class="channel-name">Slack</div>
+              <span class="channel-status disconnected" id="sl-status">Not Connected</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--text-dim)">Slack bot for #harz-ops. Agents respond to @mentions and post alerts.</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="connectChannel('slack')">Connect</button>
+            <button class="btn btn-ghost" onclick="showSetup('slack')">Setup Guide</button>
+          </div>
+        </div>
+        <div class="channel-card">
+          <div class="channel-header">
+            <div class="channel-icon imessage">💌</div>
+            <div>
+              <div class="channel-name">iMessage</div>
+              <span class="channel-status disconnected" id="im-status">Not Connected</span>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--text-dim)">Requires BlueBubbles relay on a Mac. Agents chat with users via iMessage.</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="connectChannel('imessage')">Connect</button>
+            <button class="btn btn-ghost" onclick="showSetup('imessage')">Setup Guide</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:24px">
+        <div class="card-title">📊 Conversation Stats</div>
+        <div id="conv-stats">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Deployments Page -->
+    <div class="page" id="page-deployments">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🚀 Deployments</div>
+          <div class="page-subtitle">Manage all HARZ Ecosystem deployments</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Production Deployments</div>
+        <div id="deploy-list"></div>
+      </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">⚙️ Settings</div>
+          <div class="page-subtitle">HARZ Cloud connection and configuration</div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">☁️ HARZ Cloud</div>
+          <div class="agent-form">
+            <div class="form-group">
+              <label class="form-label">API URL</label>
+              <input class="form-input" value="https://harz-cloud-backend.vercel.app" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">API Key</label>
+              <input class="form-input" type="password" placeholder="Enter HARZ Cloud API key">
+            </div>
+            <button class="btn btn-primary" onclick="toast('✅ Connected to HARZ Cloud!')">Test Connection</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔧 Webhooks</div>
+          <div style="display:grid;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+              <span style="font-size:13px">WhatsApp</span>
+              <code style="font-size:11px;color:var(--text-dim)">/webhooks/whatsapp</code>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+              <span style="font-size:13px">Slack</span>
+              <code style="font-size:11px;color:var(--text-dim)">/webhooks/slack</code>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border-radius:8px">
+              <span style="font-size:13px">iMessage</span>
+              <code style="font-size:11px;color:var(--text-dim)">/webhooks/imessage</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+const HARZ_CLOUD = 'https://harz-cloud-backend.vercel.app';
+const AGENTS = [
+  {name:'Magani',role:'Health Agent',icon:'🏥',success:97.2,tasks:1284,color:'#00E676'},
+  {name:'CyberShield Agent',role:'Security Agent',icon:'🛡️',success:95.8,tasks:892,color:'#2196F3'},
+  {name:'Omega Commander',role:'DevOps Agent',icon:'⚙️',success:96.1,tasks:1456,color:'#FF9800'},
+  {name:'MindCare Agent',role:'Mental Health Agent',icon:'🧠',success:95.9,tasks:734,color:'#9C27B0'},
+  {name:'EduWealth Agent',role:'Education Agent',icon:'📚',success:94.8,tasks:567,color:'#FF5722'},
+  {name:'Health Agent',role:'General Health Agent',icon:'💪',success:94.2,tasks:445,color:'#4CAF50'},
+  {name:'Content Agent',role:'Content Creation Agent',icon:'✍️',success:93.5,tasks:1102,color:'#E91E63'}
+];
+
+// Navigation
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event?.target?.closest?.('.nav-item')?.classList.add('active');
+  
+  if (page === 'agents') renderAgents();
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'channels') loadChannels();
+  if (page === 'deployments') loadDeployments();
+}
+
+// Dashboard
+async function loadDashboard() {
+  try {
+    const res = await fetch(HARZ_CLOUD + '/health');
+    const data = await res.json();
+    document.getElementById('cloud-status').innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="width:10px;height:10px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success)"></span>
+        <span style="font-weight:600;color:var(--success)">Operational</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-dim);line-height:1.6">
+        Version: ${data.version}<br>
+        Uptime: ${Math.round(data.uptime)}s<br>
+        Response: < 100ms
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('cloud-status').innerHTML = '<span style="color:var(--danger)">⚠️ Unable to reach HARZ Cloud</span>';
+  }
+}
+
+// Agents
+function renderAgents() {
+  const grid = document.getElementById('agents-grid');
+  grid.innerHTML = AGENTS.map(a => `
+    <div class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar" style="background:${a.color}22;color:${a.color}">${a.icon}</div>
+        <div class="agent-info">
+          <div class="agent-name">${a.name}</div>
+          <div class="agent-role">${a.role}</div>
+        </div>
+      </div>
+      <div class="agent-success">
+        <span>Success: <b style="color:${a.color}">${a.success}%</b></span>
+        <span>Tasks: ${a.tasks}</span>
+      </div>
+      <div class="success-bar"><div class="success-fill" style="width:${a.success}%"></div></div>
+    </div>
+  `).join('');
+}
+
+// Channels
+async function loadChannels() {
+  try {
+    const res = await fetch(HARZ_CLOUD + '/api/channels');
+    const data = await res.json();
+    
+    const wa = data.whatsapp;
+    const sl = data.slack;
+    const im = data.imessage;
+    
+    document.getElementById('wa-status').className = 'channel-status ' + (wa.connected ? 'connected' : 'disconnected');
+    document.getElementById('wa-status').textContent = wa.connected ? 'Connected' : 'Not Connected';
+    
+    document.getElementById('sl-status').className = 'channel-status ' + (sl.connected ? 'connected' : 'disconnected');
+    document.getElementById('sl-status').textContent = sl.connected ? 'Connected' : 'Not Connected';
+    
+    document.getElementById('im-status').className = 'channel-status ' + (im.connected ? 'connected' : 'disconnected');
+    document.getElementById('im-status').textContent = im.connected ? 'Connected' : 'Not Connected';
+  } catch(e) {}
+  
+  // Load conversation stats
+  try {
+    const res = await fetch(HARZ_CLOUD + '/api/channels/conversations/stats');
+    const data = await res.json();
+    document.getElementById('conv-stats').innerHTML = `
+      <div class="grid grid-3">
+        <div><div style="font-size:24px;font-weight:700">${data.total}</div><div style="font-size:12px;color:var(--text-dim)">Total Conversations</div></div>
+        <div><div style="font-size:14px">${JSON.stringify(data.byChannel, null, 0) || '—'}</div><div style="font-size:12px;color:var(--text-dim)">By Channel</div></div>
+        <div><div style="font-size:14px">${JSON.stringify(data.byAgent, null, 0) || '—'}</div><div style="font-size:12px;color:var(--text-dim)">By Agent</div></div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('conv-stats').innerHTML = '<span style="color:var(--text-dim)">No data yet</span>';
+  }
+}
+
+// Deployments
+const DEPLOYMENTS = [
+  {name:'HARZ Cloud',url:'https://harz-cloud-backend.vercel.app',status:'live',platform:'Vercel'},
+  {name:'DeployForge',url:'https://deployforge-harz.vercel.app',status:'live',platform:'Vercel'},
+  {name:'HarzGit',url:'https://rabiuhamza11.github.io/harz-portfolio/harzgit.html',status:'live',platform:'GitHub Pages'},
+  {name:'Super App',url:'https://rabiuhamza11.github.io/harz-portfolio/harz-super-app-v5.html',status:'live',platform:'GitHub Pages'},
+  {name:'HarzPay',url:'https://harzpay.vercel.app',status:'live',platform:'Vercel'},
+  {name:'HarzDM',url:'https://harzdm-marketplace.vercel.app',status:'live',platform:'Vercel'},
+  {name:'MindCare AI',url:'https://mindcare-ai.vercel.app',status:'live',platform:'Vercel'},
+  {name:'HARZ Edge',url:'https://harz-edge.vercel.app',status:'dev',platform:'Vercel'},
+  {name:'HARZ AI OS',url:'https://harz-ai-os.vercel.app',status:'dev',platform:'Vercel'},
+  {name:'HarzBuilder',url:'https://harzbuild-ai.vercel.app',status:'dev',platform:'Vercel'},
+];
+
+function loadDeployments() {
+  const list = document.getElementById('deploy-list');
+  list.innerHTML = DEPLOYMENTS.map(d => `
+    <div class="deploy-item">
+      <span class="deploy-dot ${d.status}"></span>
+      <span style="font-weight:600;font-size:14px;min-width:140px">${d.name}</span>
+      <span class="badge badge-${d.status === 'live' ? 'live' : 'dev'}">${d.status.toUpperCase()}</span>
+      <span style="font-size:12px;color:var(--text-dim);flex:1">${d.platform}</span>
+      <a href="${d.url}" target="_blank" style="font-size:12px;color:var(--primary);text-decoration:none">Open ↗</a>
+    </div>
+  `).join('');
+}
+
+// Agent Builder
+function createAgent(type) {
+  showPage('agent-builder');
+  const types = {
+    health: {name:'MedBot',domain:'health',prompt:'You are a warm but clinical health AI assistant. You provide symptom assessment, wellness advice, and general health information. You NEVER diagnose or prescribe — always recommend seeing a licensed clinician.',keywords:'health, sick, symptom, fever, pain, cough, flu, malaria'},
+    security: {name:'SecGuard',domain:'security',prompt:'You are a precise cybersecurity AI agent. You provide threat assessment, security guidance, and hardening recommendations. You are direct and technical.',keywords:'security, breach, virus, malware, hack, attack, password, phishing'},
+    devops: {name:'CodePilot',domain:'devops',prompt:'You are a disciplined DevOps AI agent. You handle deployment guidance, infrastructure monitoring, and CI/CD pipeline management. You are ops-minded and cautious.',keywords:'deploy, server, ci, cd, pipeline, docker, vercel, github, build'},
+    mental: {name:'MindBot',domain:'mental',prompt:'You are a gentle and empathetic mental health AI agent. You provide emotional support, coping strategies, and wellness tips. You NEVER diagnose — always recommend professional help.',keywords:'stress, anxiety, depression, mental, sad, worried, panic'},
+    content: {name:'WriteBot',domain:'content',prompt:'You are a creative and versatile AI content creator. You help with writing, content strategy, social media, and creative direction. You are energetic and imaginative.',keywords:'write, post, video, content, blog, article, social, media'},
+    education: {name:'LearnBot',domain:'education',prompt:'You are an encouraging education AI agent. You help with learning paths, study tips, and educational resources. You are patient and motivating.',keywords:'learn, course, study, education, school, teach, tutorial'}
+  };
+  const t = types[type];
+  if (t) {
+    document.getElementById('agent-name').value = t.name;
+    document.getElementById('agent-domain').value = t.domain;
+    document.getElementById('agent-prompt').value = t.prompt;
+    document.getElementById('agent-keywords').value = t.keywords;
+    updatePreview();
+  }
+}
+
+function updatePreview() {
+  const name = document.getElementById('agent-name').value || 'Agent';
+  const domain = document.getElementById('agent-domain').value;
+  const prompt = document.getElementById('agent-prompt').value || '';
+  
+  const icons = {health:'🏥',security:'🛡️',devops:'⚙️',mental:'🧠',content:'✍️',education:'📚',finance:'💰',general:'🤖'};
+  const colors = {health:'#00E676',security:'#2196F3',devops:'#FF9800',mental:'#9C27B0',content:'#E91E63',education:'#FF5722',finance:'#4CAF50',general:'#607D8B'};
+  
+  document.getElementById('agent-preview').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:56px;height:56px;border-radius:14px;background:${colors[domain]}22;display:flex;align-items:center;justify-content:center;font-size:28px">${icons[domain]}</div>
+      <div><div style="font-weight:700;font-size:18px">${name}</div><div style="font-size:12px;color:var(--text-dim)">AI Agent</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.6;background:var(--surface2);padding:12px;border-radius:8px">${prompt || 'No prompt set...'}</div>
+  `;
+  
+  // Generate code preview
+  const keywords = document.getElementById('agent-keywords').value.split(',').map(k=>k.trim()).filter(Boolean);
+  const code = `<span class="code-comment">// Agent Configuration</span>
+{
+  <span class="code-keyword">"name"</span>: <span class="code-string">"${name}"</span>,
+  <span class="code-keyword">"domain"</span>: <span class="code-string">"${domain}"</span>,
+  <span class="code-keyword">"systemPrompt"</span>: <span class="code-string">"${prompt.slice(0,50)}..."</span>,
+  <span class="code-keyword">"keywords"</span>: [${keywords.map(k=>`<span class="code-string">"${k}"</span>`).join(', ')}],
+  <span class="code-keyword">"channels"</span>: [<span class="code-string">"whatsapp"</span>, <span class="code-string">"slack"</span>],
+  <span class="code-keyword">"status"</span>: <span class="code-string">"ready"</span>
+}`;
+  document.getElementById('agent-code').style.display = 'block';
+  document.getElementById('agent-code-block').innerHTML = code;
+}
+
+// Live preview
+['agent-name','agent-domain','agent-prompt','agent-keywords'].forEach(id => {
+  document.addEventListener('input', e => {
+    if (e.target.id === id) updatePreview();
+  });
+});
+
+function buildAgent() {
+  const name = document.getElementById('agent-name').value;
+  if (!name) { toast('⚠️ Please enter agent name'); return; }
+  toast('🚀 Agent "' + name + '" built! Config saved to HARZ Cloud.');
+}
+
+// App Builder
+function createApp(type) {
+  showPage('app-builder');
+  const types = {
+    marketplace: {name:'HarzMarket',type:'marketplace',desc:'Digital products marketplace with multi-seller support'},
+    dashboard: {name:'HarzDashboard',type:'dashboard',desc:'Real-time analytics dashboard powered by HARZ Cloud'},
+    landing: {name:'HarzLanding',type:'landing',desc:'Product showcase landing page'}
+  };
+  const t = types[type];
+  if (t) {
+    document.getElementById('app-name').value = t.name;
+    document.getElementById('app-type').value = t.type;
+    document.getElementById('app-desc').value = t.desc;
+    updateAppPreview();
+  }
+}
+
+function updateAppPreview() {
+  const name = document.getElementById('app-name').value || 'My App';
+  const type = document.getElementById('app-type').value;
+  const icons = {marketplace:'🛒',dashboard:'📊',landing:'🌐',saas:'💼',chat:'💬',portfolio:'📁'};
+  document.getElementById('app-preview').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--primary)22;display:flex;align-items:center;justify-content:center;font-size:28px">${icons[type]||'📱'}</div>
+      <div><div style="font-weight:700;font-size:18px">${name}</div><div style="font-size:12px;color:var(--text-dim)">${type}</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--text-dim);line-height:1.6;background:var(--surface2);padding:12px;border-radius:8px">${document.getElementById('app-desc').value || 'No description...'}</div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <span class="badge badge-new">HARZ Cloud API</span>
+      <span class="badge badge-live">Auto-Deploy</span>
+    </div>
+  `;
+}
+
+['app-name','app-type','app-desc'].forEach(id => {
+  document.addEventListener('input', e => {
+    if (e.target.id === id) updateAppPreview();
+  });
+});
+
+function buildApp() {
+  const name = document.getElementById('app-name').value;
+  if (!name) { toast('⚠️ Please enter app name'); return; }
+  toast('🔨 App "' + name + '" built! Ready for deployment on Vercel.');
+}
+
+// Channels
+function connectChannel(ch) {
+  toast('📡 Opening ' + ch + ' setup...');
+  showSetup(ch);
+}
+
+function showSetup(ch) {
+  const guides = {
+    whatsapp: `WhatsApp Setup:\n1. Go to developers.facebook.com\n2. Create Meta app → Add WhatsApp\n3. Get Phone Number ID + Token\n4. Webhook: ${HARZ_CLOUD}/webhooks/whatsapp\n5. Verify token: harz_whatsapp_2026`,
+    slack: `Slack Setup:\n1. Go to api.slack.com/apps\n2. Create New App\n3. Events API URL: ${HARZ_CLOUD}/webhooks/slack\n4. Subscribe: message.channels, app_mention\n5. Scopes: chat:write, app_mentions:read\n6. Install → Get Bot Token`,
+    imessage: `iMessage Setup:\n1. Set up BlueBubbles on a Mac\n2. Get server URL + password\n3. Webhook: ${HARZ_CLOUD}/webhooks/imessage\n4. Requires always-on Mac`
+  };
+  alert(guides[ch] || 'Setup guide not found');
+}
+
+// Toast
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>
